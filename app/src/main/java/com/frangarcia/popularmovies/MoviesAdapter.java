@@ -24,24 +24,41 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.frangarcia.popularmovies.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePosterViewHolder> {
+    /* *****************************************
+     * Constants
+     ******************************************/
     private static final String TAG = MoviesAdapter.class.getSimpleName();
-    private final MoviePostersClickListener mOnClickListener;
+
+    /* *****************************************
+     * Fields
+     ******************************************/
     private int mTotalMovies;
+
+    /* *****************************************
+     * Listeners
+     ******************************************/
+    private final MoviePostersClickListener mOnClickListener;
 
     public interface MoviePostersClickListener{
         void onPosterClick(int clickedPosterIndex);
     }
 
+    /* *****************************************
+     * Constructors
+     ******************************************/
     public MoviesAdapter(int totalMovies, MoviePostersClickListener listener){
         mTotalMovies = totalMovies;
         mOnClickListener = listener;
     }
 
-
+    /* *****************************************
+     * Overridden Methods
+     ******************************************/
     @Override
     public MoviePosterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
@@ -65,26 +82,48 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePoste
         return mTotalMovies;
     }
 
+    /* *****************************************
+     * Inner ViewHolder class
+     ******************************************/
     class MoviePosterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        /* *****************************************
+        * Fields
+        ******************************************/
         private ImageView mMoviePosterView;
 
+        /* *****************************************
+        * Constructors
+        ******************************************/
         public MoviePosterViewHolder(View itemView) {
             super(itemView);
             mMoviePosterView = (ImageView) itemView.findViewById(R.id.iv_movie_poster);
             mMoviePosterView.setOnClickListener(this);
         }
 
-        void bind(int posterIndex) {
-//            mMoviePosterView.setText(String.valueOf(posterIndex)); 
-            Log.v(TAG, "Poster Index: " + posterIndex);
-
-            Picasso.with(itemView.getContext()).load("http://i.imgur.com/DvpvklR.png").into(mMoviePosterView);
-        }
-
+        /* *****************************************
+        * Overridden Methods
+        ******************************************/
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
             mOnClickListener.onPosterClick(clickedPosition);
+        }
+
+        /* *****************************************
+        * Private Methods
+        ******************************************/
+
+        /**
+         * Load the movie poster into the ImageView control
+         * @param posterIndex
+         */
+        private void bind(int posterIndex) {
+            Log.v(TAG, "Movie Poster Index: " + posterIndex);
+
+            //Load movie poster
+            String moviePosterAPIPath = MainActivity.mMovies.get(posterIndex).getmPosterPath();
+            String moviePosterURL = NetworkUtils.buildImageURL(moviePosterAPIPath).toString();
+            Picasso.with(itemView.getContext()).load(moviePosterURL).into(mMoviePosterView);
         }
     }
 }
