@@ -16,7 +16,12 @@
 
 package com.frangarcia.popularmovies.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.frangarcia.popularmovies.utilities.ArraysUtils;
 import com.frangarcia.popularmovies.utilities.JSONUtils;
+import com.frangarcia.popularmovies.utilities.NetworkUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,7 +33,7 @@ import java.util.Arrays;
  * Data Model for movies following the documentation from
  * https://developers.themoviedb.org/3/movies/get-popular-movies
  */
-public class Movie {
+public class Movie implements Parcelable{
     /* *****************************************
      * Constants for json field names
      ******************************************/
@@ -46,6 +51,9 @@ public class Movie {
     static final String        VIDEO_FIELD                 = "video";
     static final String        VOTE_AVERAGE_FIELD          = "vote_average";
 
+    //the total amount of the fields written as String Array in destination Parcel
+    static final int           TOTAL_STRING_ARRAY_FIELDS   = 13;
+
     /* *****************************************
      * Fields
      ******************************************/
@@ -62,6 +70,7 @@ public class Movie {
     private Integer     mVoteCount;
     private Boolean     mVideo;
     private Double      mVoteAverage;
+    private String      posterCompleteURL;
 
     /* *****************************************
      * Getters & Setters
@@ -118,6 +127,14 @@ public class Movie {
         return mVoteAverage;
     }
 
+    public String getPosterCompleteURL() {
+        return posterCompleteURL;
+    }
+
+    public void setPosterCompleteURL(String posterCompleteURL) {
+        this.posterCompleteURL = posterCompleteURL;
+    }
+
     /* *****************************************
      * Constructors
      ******************************************/
@@ -133,6 +150,28 @@ public class Movie {
                 , json.getString(ORIGINAL_LANGUAGE_FIELD), json.getString(TITLE_FIELD)
                 , json.getDouble(POPULARITY_FIELD), json.getInt(VOTE_COUNT_FIELD)
                 , json.getBoolean(VIDEO_FIELD), json.getDouble(VOTE_AVERAGE_FIELD));
+    }
+
+    public Movie(Parcel parcel) {
+        String[] rawData = new String[TOTAL_STRING_ARRAY_FIELDS];
+//        int[] readGenresIds = null;
+//        parcel.readIntArray(readGenresIds);
+        parcel.readStringArray(rawData);
+
+        mId = Integer.parseInt(rawData[0]);
+        mPosterPath = rawData[1];
+        mAdult = Boolean.parseBoolean(rawData[2]);
+        mOverview = rawData[3];
+        mReleaseDate = rawData[4];
+//        mGenreIds = ArraysUtils.intArrayToIntegerArray(readGenresIds);
+        mOriginalTitle = rawData[5];
+        mOriginalLanguage = rawData[6];
+        mTitle = rawData[7];
+        mPopularity = Double.parseDouble(rawData[8]);
+        mVoteCount = Integer.parseInt(rawData[9]);
+        mVideo = Boolean.parseBoolean(rawData[10]);
+        mVoteAverage = Double.parseDouble(rawData[11]);
+        posterCompleteURL = rawData[12];
     }
 
     public Movie(Integer id, String posterPath, Boolean adult, String overview, String releaseDate
@@ -151,6 +190,7 @@ public class Movie {
         mVoteCount = voteCount;
         mVideo = video;
         mVoteAverage = voteAverage;
+        posterCompleteURL = NetworkUtils.buildImageURL(mPosterPath).toString();
     }
 
     /* *****************************************
@@ -174,4 +214,40 @@ public class Movie {
                 ", mVoteAverage=" + mVoteAverage +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeStringArray(new String[]{
+                String.valueOf(mId),
+                mPosterPath,
+                String.valueOf(mAdult),
+                mOverview,
+                mReleaseDate,
+                mOriginalTitle,
+                mOriginalLanguage,
+                mTitle,
+                String.valueOf(mPopularity),
+                String.valueOf(mVoteCount),
+                String.valueOf(mVideo),
+                String.valueOf(mVoteAverage),
+                posterCompleteURL
+        });
+
+//        dest.writeIntArray(ArraysUtils.integerArrayToIntArray(getmGenreIds()));
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
 }

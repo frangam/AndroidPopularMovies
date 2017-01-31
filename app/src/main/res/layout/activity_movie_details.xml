@@ -25,10 +25,22 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/tb_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="wrap_content"
         android:background="@color/colorToolbar">
 
+        <TextView
+            android:id="@+id/tv_movie_original_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="42dp"
+            android:paddingTop="42dp"
+            android:paddingBottom="42dp"
+            android:textColor="@color/colorBlankText"
+            android:text="Original Title"/>
+
     </android.support.v7.widget.Toolbar>
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -54,7 +66,7 @@
                 android:padding="16dp">
 
                 <TextView
-                    android:id="@+id/tv_movie_year"
+                    android:id="@+id/tv_movie_release_date"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="34sp"

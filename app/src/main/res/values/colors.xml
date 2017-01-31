@@ -23,4 +23,5 @@
     <color name="colorToolbar">#ffb327</color>
     <color name="colorText">#b6b6b6</color>
     <color name="colorDefaultText">#000000</color>
+    <color name="colorBlankText">#ffffff</color>
 </resources>

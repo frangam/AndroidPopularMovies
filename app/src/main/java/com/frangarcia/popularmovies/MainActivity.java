@@ -16,8 +16,10 @@
 
 package com.frangarcia.popularmovies;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -48,8 +50,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     * Constants
     ******************************************/
     private static final String TAG                 = MoviesAdapter.class.getSimpleName();
+    public  static final String MOVIE_INTENT_EXTRA  = "movie";
     private static final String MOVIE_RESULTS_ARRAY = "results";
-    private static final int    NUM_LIST_ITEMS      = 10;
 
     /* *****************************************
     * Fields
@@ -89,14 +91,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
 
     @Override
     public void onPosterClick(int clickedPosterIndex) {
-        if(mToast != null){
-            mToast.cancel();
-        }
-
-        //TODO only for testing
-        String toastMessage = "Movie: "+ mAdapter.getmMovies().get(clickedPosterIndex).getmTitle();
-        mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
-        mToast.show();
+        Class destinationActivity = MovieDetailsActivity.class;
+        Intent intent = new Intent(MainActivity.this, destinationActivity);
+        Movie selectedMovie = mAdapter.getmMovies().get(clickedPosterIndex);
+        intent.putExtra(MOVIE_INTENT_EXTRA, selectedMovie);
+        startActivity(intent);
     }
 
     @Override
@@ -133,6 +132,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         }
         else if(selectedItemId == R.id.it_top_rated){
             makeMoviesSearchQuery(MoviesSortOrder.TOP_RATED);
+        }
+        else if(selectedItemId == R.id.home){
+            NavUtils.navigateUpFromSameTask(this);
         }
         else{
             res = super.onOptionsItemSelected(item);

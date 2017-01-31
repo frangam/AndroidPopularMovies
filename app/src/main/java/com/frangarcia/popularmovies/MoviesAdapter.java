@@ -209,9 +209,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             //Load movie poster
             if(mMovies != null && mMovies.get(posterIndex) != null) {
-                String moviePosterAPIPath = mMovies.get(posterIndex).getmPosterPath();
-                String moviePosterURL = NetworkUtils.buildImageURL(moviePosterAPIPath).toString();
-                Picasso.with(itemView.getContext()).load(moviePosterURL).into(mMoviePosterView);
+                Picasso.with(itemView.getContext()).load(mMovies.get(posterIndex).getPosterCompleteURL()).into(mMoviePosterView);
             }
         }
     }
