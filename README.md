@@ -3,8 +3,8 @@ Simple &amp; Educational Android App for showing popular movies (Associate Andro
 
 # themoviedb.org API
 - This project use the themoviedb.org API and it is necessary to have an account and request for an API key. 
-- Then, create a resource xml file on the android project and call it "apikey.xml" (.gitignore is currently ignoring this filename).
-- Finally, add the content to apikey.xml file like the following, keeping the same string name attribute ("api_key"):
+- Then, create a new resource xml file on the values folder of your android project and call it "apikey.xml" (.gitignore is currently ignoring this filename).
+- Finally, add the next content to apikey.xml file keeping the same string name attribute ("api_key"):
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
