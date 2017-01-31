@@ -16,11 +16,14 @@
 
 package com.frangarcia.popularmovies;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,7 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.MoviePostersClickListener{
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.MoviePosterEventsListener {
     /* *****************************************
     * Constants
     ******************************************/
@@ -56,12 +59,12 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private RecyclerView        mRecycler;
     private TextView            mErrorMessage;
     private ProgressBar         mLoadingIndicator;
-    public static List<Movie>   mMovies;
+    private int                 mCurrentMoviesPage = 1;
+    private MoviesSortOrder     mCurrentSortOrder = MoviesSortOrder.MOST_POPULAR;
 
     //TODO only for testing
-    private EditText mAPIKeyView;
     private Toast mToast;
-    private String mAPIKey;
+
 
     /* *****************************************
     * Overridden Methods
@@ -72,18 +75,16 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         setContentView(R.layout.activity_main);
 
         mErrorMessage = (TextView) findViewById(R.id.tv_error_message_display);
-        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-
-        //TODO remove after testing
-        mAPIKeyView = (EditText) findViewById(R.id.tv_api_key);
+        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_main_loader_indicator);
 
         mRecycler = (RecyclerView) findViewById(R.id.rv_movie_posters);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         mRecycler.setLayoutManager(gridLayoutManager);
         mRecycler.setHasFixedSize(true);
+        mAdapter = new MoviesAdapter(new ArrayList<Movie>(), mRecycler, this);
+        mRecycler.setAdapter(mAdapter);
 
-        //TODO uncomment after testing
-//        makeMoviesSearchQuery(MoviesSortOrder.MOST_POPULAR);
+        makeMoviesSearchQuery(mCurrentSortOrder);
     }
 
     @Override
@@ -93,9 +94,17 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         }
 
         //TODO only for testing
-        String toastMessage = "Item #"+clickedPosterIndex + " clicked.";
+        String toastMessage = "Movie: "+ mAdapter.getmMovies().get(clickedPosterIndex).getmTitle();
         mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
         mToast.show();
+    }
+
+    @Override
+    public void onLoadMoreMovies() {
+        //mAdapter.getmMovies().add(null);
+        //mAdapter.notifyItemInserted(mAdapter.getmMovies().size() - 1);
+        mCurrentMoviesPage++;
+        makeMoviesSearchQuery(mCurrentSortOrder);
     }
 
     @Override
@@ -108,8 +117,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean res = true;
         int selectedItemId = item.getItemId();
-
-
 
         if(selectedItemId == R.id.it_most_popular) {
             makeMoviesSearchQuery(MoviesSortOrder.MOST_POPULAR);
@@ -128,10 +135,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
      * Private Methods
      ******************************************/
      private void makeMoviesSearchQuery(MoviesSortOrder order) {
-         //TODO only for testing
-         NetworkUtils.SECRET_API_KEY = mAPIKeyView.getText().toString();
-
-         URL moviesSearchUrl = NetworkUtils.buildUrl(order);
+         mCurrentSortOrder = order;
+         URL moviesSearchUrl = NetworkUtils.buildUrl(this, mCurrentMoviesPage, mCurrentSortOrder);
          new MoviesQueryTask().execute(moviesSearchUrl);
      }
 
@@ -139,31 +144,36 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
      * Load our movies list from a given json content file
      * @param jsonContent the json content file
      */
-    private void loadMovies(String jsonContent){
+    private void loadMovies(final String jsonContent){
         try {
             JSONObject jsonObject = new JSONObject(jsonContent);
             JSONArray results = jsonObject.getJSONArray(MOVIE_RESULTS_ARRAY);
-            mMovies = new ArrayList<Movie>();
 
             for(int i=0; i<results.length(); i++){
                 JSONObject jsonMovie = results.getJSONObject(i);
                 Movie movie = new Movie(jsonMovie);
-                mMovies.add(movie);
+                mAdapter.getmMovies().add(movie);
+                mAdapter.notifyItemInserted(mAdapter.getmMovies().size());
             }
 
-            showMoviesPosters();
+            mAdapter.setLoading(false);
+            showMoviesPosters(mAdapter.getmMovies());
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    private void showMoviesPosters(){
-        mRecycler.setVisibility(View.VISIBLE);
-        mErrorMessage.setVisibility(View.INVISIBLE);
+    private void showMoviesPosters(List<Movie> movies){
+        if(movies != null && movies.size() > 0){
+            int totalMovies = movies.size();
 
-        if(mMovies != null && mMovies.size() > 0){
-            mAdapter = new MoviesAdapter(mMovies.size(), this);
+            Log.v(TAG, "Total Movies: " + movies.size());
+            mAdapter = new MoviesAdapter(movies, mRecycler, this);
             mRecycler.setAdapter(mAdapter);
+
+
+            mRecycler.setVisibility(View.VISIBLE);
+            mErrorMessage.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -206,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             mLoadingIndicator.setVisibility(View.INVISIBLE);
 
             if (moviesSearchResults != null && !moviesSearchResults.equals("")) {
-                showMoviesPosters();
                 loadMovies(moviesSearchResults);
             }
             else {

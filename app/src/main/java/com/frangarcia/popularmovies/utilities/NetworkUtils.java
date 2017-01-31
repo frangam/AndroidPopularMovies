@@ -20,10 +20,13 @@
 
 package com.frangarcia.popularmovies.utilities;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import com.frangarcia.popularmovies.MainActivity;
 import com.frangarcia.popularmovies.MoviesSortOrder;
+import com.frangarcia.popularmovies.R;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,45 +42,43 @@ public class NetworkUtils {
     /* *****************************************
      * Constants
      ******************************************/
-    private static final String TAG         = NetworkUtils.class.getSimpleName();
-    final static String MOVIES_API_BASE_URL = "http://api.themoviedb.org/3";
-    final static String IMAGES_BASE_URL     = "http://image.tmdb.org/t/p/";
-
-    //TODO change to private final static after testing
-    public static String SECRET_API_KEY      = "REPLACE_WITH_YOUR_SECRET_API_KEY";
-
-    final static String MOVIE_PATH          = "movie";
-    final static String MOST_POPULAR_PATH   = "popular";
-    final static String TOP_RATED_PATH      = "top_rated";
-    final static String API_QUERY           = "api_key";
-    final static String PAGE_PARAM          = "page";
-    final static String IMG_SIZE_92         = "w92";
-    final static String IMG_SIZE_154        = "w154";
-    final static String IMG_SIZE_185        = "w185";
-    final static String IMG_SIZE_342        = "w342";
-    final static String IMG_SIZE_500        = "w500";
-    final static String IMG_SIZE_780        = "w780";
-    final static String IMG_SIZE_ORIGINAL   = "original";
+    private static final String TAG                 = NetworkUtils.class.getSimpleName();
+    private static final String MOVIES_API_BASE_URL = "http://api.themoviedb.org/3";
+    private static final String IMAGES_BASE_URL     = "http://image.tmdb.org/t/p/";
+    private static final String MOVIE_PATH          = "movie";
+    private static final String MOST_POPULAR_PATH   = "popular";
+    private static final String TOP_RATED_PATH      = "top_rated";
+    private static final String API_QUERY           = "api_key";
+    private static final String PAGE_PARAM          = "page";
+    private static final String IMG_SIZE_92         = "w92";
+    private static final String IMG_SIZE_154        = "w154";
+    private static final String IMG_SIZE_185        = "w185";
+    private static final String IMG_SIZE_342        = "w342";
+    private static final String IMG_SIZE_500        = "w500";
+    private static final String IMG_SIZE_780        = "w780";
+    private static final String IMG_SIZE_ORIGINAL   = "original";
 
     /* *****************************************
     * Public Static Methods
     ******************************************/
-    public static URL buildUrl() {return  buildUrl(1, MoviesSortOrder.MOST_POPULAR);}
-    public static URL buildUrl(int page) {return  buildUrl(page, MoviesSortOrder.MOST_POPULAR);}
-    public static URL buildUrl(MoviesSortOrder order) {return  buildUrl(1, order);}
+    public static URL buildUrl(Context context) {return  buildUrl(context, 1, MoviesSortOrder.MOST_POPULAR);}
+    public static URL buildUrl(Context context, int page) {return  buildUrl(context, page, MoviesSortOrder.MOST_POPULAR);}
+    public static URL buildUrl(Context context, MoviesSortOrder order) {return  buildUrl(context, 1, order);}
 
     /**
      * Build the URL
+     * @param context the context
      * @param page the current page
      * @param order the sort order for filtering
      * @return the movies search URL ordered by sort order parameter
      */
-    public static URL buildUrl(int page, MoviesSortOrder order) {
+    public static URL buildUrl(Context context, int page, MoviesSortOrder order) {
         URL url = null;
+
         Uri builtUri = Uri.parse(MOVIES_API_BASE_URL);
         Uri.Builder uriBuilder = builtUri.buildUpon()
                 .appendPath(MOVIE_PATH)
-                .appendQueryParameter(API_QUERY, SECRET_API_KEY)
+                .appendQueryParameter(API_QUERY, context.getString(R.string.api_key))
                 .appendQueryParameter(PAGE_PARAM, String.valueOf(page));
 
         switch (order){
@@ -93,6 +94,7 @@ public class NetworkUtils {
 
         try {
             url = new URL(builtUri.toString());
+            Log.v(TAG, url.toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

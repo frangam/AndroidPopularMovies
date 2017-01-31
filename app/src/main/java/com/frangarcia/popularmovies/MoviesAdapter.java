@@ -17,6 +17,7 @@
 package com.frangarcia.popularmovies;
 
 import android.content.Context;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,33 +28,82 @@ import android.widget.ImageView;
 import com.frangarcia.popularmovies.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePosterViewHolder> {
     /* *****************************************
      * Constants
      ******************************************/
-    private static final String TAG = MoviesAdapter.class.getSimpleName();
+    private final String TAG = MoviesAdapter.class.getSimpleName();
 
     /* *****************************************
      * Fields
      ******************************************/
-    private int mTotalMovies;
+    private List<Movie> mMovies;
+
+    //
+    // The minimum amount of items to have below your current scroll position before loading more.
+    // idea from http://stackoverflow.com/questions/30681905/adding-items-to-endless-scroll-recyclerview-with-progressbar-at-bottom
+    private int visibleThreshold = 2;
+    private int lastVisibleItem, totalItemCount;
+    private boolean loading;
 
     /* *****************************************
      * Listeners
      ******************************************/
-    private final MoviePostersClickListener mOnClickListener;
+    private final MoviePosterEventsListener mEventsListener;
 
-    public interface MoviePostersClickListener{
+    public interface MoviePosterEventsListener {
         void onPosterClick(int clickedPosterIndex);
+        void onLoadMoreMovies();
+    }
+
+
+    /* *****************************************
+     * Getters & Setters
+     ******************************************/
+
+    public List<Movie> getmMovies() {
+        return mMovies;
+    }
+
+    public void setmMovies(List<Movie> mMovies) {
+        mMovies = mMovies;
+    }
+
+    public void setLoading(boolean loading) {
+        this.loading = loading;
     }
 
     /* *****************************************
      * Constructors
      ******************************************/
-    public MoviesAdapter(int totalMovies, MoviePostersClickListener listener){
-        mTotalMovies = totalMovies;
-        mOnClickListener = listener;
+    public MoviesAdapter(List<Movie> movies, RecyclerView recyclerView, MoviePosterEventsListener listener){
+        mMovies = movies;
+        mEventsListener = listener;
+
+        final GridLayoutManager linearLayoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
+
+        // implement an endless scroll
+        //idea from http://stackoverflow.com/questions/30681905/adding-items-to-endless-scroll-recyclerview-with-progressbar-at-bottom
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                totalItemCount = linearLayoutManager.getItemCount();
+                lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
+
+                if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                    // Scroll End has been reached and we continue loading more movies
+                    if (mEventsListener != null) {
+                        mEventsListener.onLoadMoreMovies();
+                    }
+                    loading = true;
+                }
+            }
+        });
     }
 
     /* *****************************************
@@ -62,11 +112,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePoste
     @Override
     public MoviePosterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
-        int layoutId = R.layout.movie_poster;
         LayoutInflater inflater = LayoutInflater.from(context);
         boolean shouldAttachToParentImmediately = false;
-
-        View view = inflater.inflate(layoutId, parent, shouldAttachToParentImmediately);
+        View view = inflater.inflate(R.layout.movie_poster, parent, shouldAttachToParentImmediately);
         MoviePosterViewHolder viewHolder = new MoviePosterViewHolder(view);
 
         return viewHolder;
@@ -74,16 +122,19 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePoste
 
     @Override
     public void onBindViewHolder(MoviePosterViewHolder holder, int position) {
-        holder.bind(position);
+        if(holder != null) {
+            holder.bind(position);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return mTotalMovies;
+        return mMovies.size();
     }
 
+
     /* *****************************************
-     * Inner ViewHolder class
+     * Inner MoviePosterViewHolder class
      ******************************************/
     class MoviePosterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         /* *****************************************
@@ -106,7 +157,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePoste
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
-            mOnClickListener.onPosterClick(clickedPosition);
+            mEventsListener.onPosterClick(clickedPosition);
         }
 
         /* *****************************************
@@ -121,9 +172,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePoste
             Log.v(TAG, "Movie Poster Index: " + posterIndex);
 
             //Load movie poster
-            String moviePosterAPIPath = MainActivity.mMovies.get(posterIndex).getmPosterPath();
-            String moviePosterURL = NetworkUtils.buildImageURL(moviePosterAPIPath).toString();
-            Picasso.with(itemView.getContext()).load(moviePosterURL).into(mMoviePosterView);
+            if(mMovies != null) {
+                String moviePosterAPIPath = mMovies.get(posterIndex).getmPosterPath();
+                String moviePosterURL = NetworkUtils.buildImageURL(moviePosterAPIPath).toString();
+                Picasso.with(itemView.getContext()).load(moviePosterURL).into(mMoviePosterView);
+            }
         }
     }
 }
