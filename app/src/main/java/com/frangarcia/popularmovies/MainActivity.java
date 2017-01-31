@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,9 +64,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private int                 mCurrentMoviesPage = 1;
     private MoviesSortOrder     mCurrentSortOrder = MoviesSortOrder.MOST_POPULAR;
     private boolean             cleanMovies = true;
-
-    //TODO only for testing
-    private Toast mToast;
 
 
     /* *****************************************
@@ -180,6 +178,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                         mAdapter.notifyDataSetChanged();
                     }
                 });
+                mRecycler.scrollToPosition(0); //reset scroll to top
             }
 
             for(int i=0; i<results.length(); i++){
@@ -207,9 +206,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             int totalMovies = movies.size();
 
             Log.v(TAG, "Total Movies: " + movies.size());
-//            mAdapter = new MoviesAdapter(movies, mRecycler, this);
-//            mRecycler.setAdapter(mAdapter);
-
 
             mRecycler.setVisibility(View.VISIBLE);
             mErrorMessage.setVisibility(View.INVISIBLE);
