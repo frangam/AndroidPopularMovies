@@ -58,10 +58,10 @@ public class Movie {
     private String      mOriginalTitle;
     private String      mOriginalLanguage;
     private String      mTitle;
-    private Double       mPopularity;
+    private Double      mPopularity;
     private Integer     mVoteCount;
     private Boolean     mVideo;
-    private Double       mVoteAverage;
+    private Double      mVoteAverage;
 
     /* *****************************************
      * Getters & Setters

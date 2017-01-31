@@ -60,10 +60,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private ProgressBar         mLoadingIndicator;
     private int                 mCurrentMoviesPage = 1;
     private MoviesSortOrder     mCurrentSortOrder = MoviesSortOrder.MOST_POPULAR;
-
-    /**
-     * We clean all movies when we sort by a different sort order than the current one
-     */
     private boolean             cleanMovies = true;
 
     //TODO only for testing
