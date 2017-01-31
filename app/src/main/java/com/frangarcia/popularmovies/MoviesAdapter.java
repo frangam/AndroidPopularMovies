@@ -17,7 +17,6 @@
 package com.frangarcia.popularmovies;
 
 import android.content.Context;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.frangarcia.popularmovies.models.Movie;
 import com.frangarcia.popularmovies.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 

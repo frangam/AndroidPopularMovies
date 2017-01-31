@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.frangarcia.popularmovies;
+package com.frangarcia.popularmovies.models;
 
 import com.frangarcia.popularmovies.utilities.JSONUtils;
 
