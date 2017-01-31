@@ -18,12 +18,14 @@ package com.frangarcia.popularmovies;
 
 import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.frangarcia.popularmovies.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
@@ -31,23 +33,30 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePosterViewHolder> {
+public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /* *****************************************
      * Constants
      ******************************************/
     private final String TAG = MoviesAdapter.class.getSimpleName();
 
+    // The view types
+    private final int VIEW_MOVIE_POSTERS        = 0;
+    private final int VIEW_LOADER_INDICATOR     = 1;
+
     /* *****************************************
      * Fields
      ******************************************/
-    private List<Movie> mMovies;
+    private List<Movie>     mMovies;
+    private RecyclerView    mRecycler;
 
     //
     // The minimum amount of items to have below your current scroll position before loading more.
     // idea from http://stackoverflow.com/questions/30681905/adding-items-to-endless-scroll-recyclerview-with-progressbar-at-bottom
-    private int visibleThreshold = 2;
-    private int lastVisibleItem, totalItemCount;
-    private boolean loading;
+    private int visibleThreshold = 4;
+    private int lastVisibleItem;
+    private int totalItemCount;
+    private boolean loading = false;
+    private int mScrollY;
 
     /* *****************************************
      * Listeners
@@ -82,48 +91,64 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePoste
     public MoviesAdapter(List<Movie> movies, RecyclerView recyclerView, MoviePosterEventsListener listener){
         mMovies = movies;
         mEventsListener = listener;
+        mRecycler = recyclerView;
 
-        final GridLayoutManager linearLayoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
+        if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
+            final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
 
-        // implement an endless scroll
-        //idea from http://stackoverflow.com/questions/30681905/adding-items-to-endless-scroll-recyclerview-with-progressbar-at-bottom
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
+            // implement an endless scroll
+            //idea from http://stackoverflow.com/questions/30681905/adding-items-to-endless-scroll-recyclerview-with-progressbar-at-bottom
+            mRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    mScrollY += dy;
 
-                totalItemCount = linearLayoutManager.getItemCount();
-                lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
+                    totalItemCount = linearLayoutManager.getItemCount();
+                    lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
 
-                if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
-                    // Scroll End has been reached and we continue loading more movies
-                    if (mEventsListener != null) {
-                        mEventsListener.onLoadMoreMovies();
+                    if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                        // Scroll End has been reached and we continue loading more movies
+                        if (mEventsListener != null) {
+                            mEventsListener.onLoadMoreMovies();
+                        }
+                        loading = true;
                     }
-                    loading = true;
                 }
-            }
-        });
+            });
+        }
     }
 
     /* *****************************************
      * Overridden Methods
      ******************************************/
     @Override
-    public MoviePosterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         boolean shouldAttachToParentImmediately = false;
-        View view = inflater.inflate(R.layout.movie_poster, parent, shouldAttachToParentImmediately);
-        MoviePosterViewHolder viewHolder = new MoviePosterViewHolder(view);
+        View view = null;
+        RecyclerView.ViewHolder viewHolder = null;
+
+        if(viewType == VIEW_MOVIE_POSTERS) {
+            view = inflater.inflate(R.layout.movie_poster, parent, shouldAttachToParentImmediately);
+            viewHolder = new MoviePosterViewHolder(view);
+        }
+        else if(viewType == VIEW_LOADER_INDICATOR){
+            view = inflater.inflate(R.layout.progress_loader, parent, shouldAttachToParentImmediately);
+            viewHolder = new ProgressViewHolder(view);
+        }
 
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(MoviePosterViewHolder holder, int position) {
-        if(holder != null) {
-            holder.bind(position);
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if(holder instanceof MoviePosterViewHolder) {
+            ((MoviePosterViewHolder)holder).bind(position);
+        }
+        else if(holder instanceof ProgressViewHolder){
+            ((ProgressViewHolder) holder).getLoaderIndicator().setIndeterminate(true);
         }
     }
 
@@ -132,19 +157,30 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePoste
         return mMovies.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return mMovies.get(position) != null ? VIEW_MOVIE_POSTERS : VIEW_LOADER_INDICATOR;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return (getItemViewType(position) == VIEW_MOVIE_POSTERS) ? position : -1;
+    }
+
+
 
     /* *****************************************
      * Inner MoviePosterViewHolder class
      ******************************************/
     class MoviePosterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         /* *****************************************
-        * Fields
-        ******************************************/
+         * Fields
+         ******************************************/
         private ImageView mMoviePosterView;
 
         /* *****************************************
-        * Constructors
-        ******************************************/
+         * Constructors
+         ******************************************/
         public MoviePosterViewHolder(View itemView) {
             super(itemView);
             mMoviePosterView = (ImageView) itemView.findViewById(R.id.iv_movie_poster);
@@ -152,8 +188,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePoste
         }
 
         /* *****************************************
-        * Overridden Methods
-        ******************************************/
+         * Overridden Methods
+         ******************************************/
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
@@ -161,8 +197,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePoste
         }
 
         /* *****************************************
-        * Private Methods
-        ******************************************/
+         * Private Methods
+         ******************************************/
 
         /**
          * Load the movie poster into the ImageView control
@@ -172,11 +208,37 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviePoste
             Log.v(TAG, "Movie Poster Index: " + posterIndex);
 
             //Load movie poster
-            if(mMovies != null) {
+            if(mMovies != null && mMovies.get(posterIndex) != null) {
                 String moviePosterAPIPath = mMovies.get(posterIndex).getmPosterPath();
                 String moviePosterURL = NetworkUtils.buildImageURL(moviePosterAPIPath).toString();
                 Picasso.with(itemView.getContext()).load(moviePosterURL).into(mMoviePosterView);
             }
+        }
+    }
+
+    /* *****************************************
+     * Inner ProgressViewHolder class
+     ******************************************/
+    class ProgressViewHolder extends RecyclerView.ViewHolder {
+        /* *****************************************
+         * Fields
+         ******************************************/
+        private ProgressBar mLoaderIndicator;
+
+        /* *****************************************
+         * Getters & Setters
+         ******************************************/
+
+        public ProgressBar getLoaderIndicator() {
+            return mLoaderIndicator;
+        }
+
+        /* *****************************************
+         * Constructors
+         ******************************************/
+        public ProgressViewHolder(View v) {
+            super(v);
+            mLoaderIndicator = (ProgressBar) v.findViewById(R.id.pb_loader_indicator);
         }
     }
 }

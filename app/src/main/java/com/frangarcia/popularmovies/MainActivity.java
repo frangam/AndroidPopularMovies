@@ -62,6 +62,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private int                 mCurrentMoviesPage = 1;
     private MoviesSortOrder     mCurrentSortOrder = MoviesSortOrder.MOST_POPULAR;
 
+    /**
+     * We clean all movies when we sort by a different sort order than the current one
+     */
+    private boolean             cleanMovies = true;
+
     //TODO only for testing
     private Toast mToast;
 
@@ -101,8 +106,16 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
 
     @Override
     public void onLoadMoreMovies() {
-        //mAdapter.getmMovies().add(null);
-        //mAdapter.notifyItemInserted(mAdapter.getmMovies().size() - 1);
+        //add null , so the adapter will check view_type and show progress bar at bottom
+        mAdapter.getmMovies().add(null);
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.notifyItemInserted(mAdapter.getmMovies().size());
+            }
+        });
+
+        cleanMovies = false;
         mCurrentMoviesPage++;
         makeMoviesSearchQuery(mCurrentSortOrder);
     }
@@ -117,6 +130,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean res = true;
         int selectedItemId = item.getItemId();
+        cleanMovies = true;
+        mCurrentMoviesPage = 1;
 
         if(selectedItemId == R.id.it_most_popular) {
             makeMoviesSearchQuery(MoviesSortOrder.MOST_POPULAR);
@@ -149,11 +164,38 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             JSONObject jsonObject = new JSONObject(jsonContent);
             JSONArray results = jsonObject.getJSONArray(MOVIE_RESULTS_ARRAY);
 
+            //remove the null movie object added previously for showing loader indicator
+            if (mCurrentMoviesPage > 1) {
+                mAdapter.getmMovies().remove(mAdapter.getmMovies().size() - 1);
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.notifyItemRemoved( mAdapter.getmMovies().size());
+                    }
+                });
+            }
+
+            if(cleanMovies){
+                mAdapter.getmMovies().clear();
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+
             for(int i=0; i<results.length(); i++){
                 JSONObject jsonMovie = results.getJSONObject(i);
                 Movie movie = new Movie(jsonMovie);
                 mAdapter.getmMovies().add(movie);
-                mAdapter.notifyItemInserted(mAdapter.getmMovies().size());
+
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.notifyItemInserted(mAdapter.getmMovies().size());
+                    }
+                });
             }
 
             mAdapter.setLoading(false);
@@ -168,8 +210,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             int totalMovies = movies.size();
 
             Log.v(TAG, "Total Movies: " + movies.size());
-            mAdapter = new MoviesAdapter(movies, mRecycler, this);
-            mRecycler.setAdapter(mAdapter);
+//            mAdapter = new MoviesAdapter(movies, mRecycler, this);
+//            mRecycler.setAdapter(mAdapter);
 
 
             mRecycler.setVisibility(View.VISIBLE);
@@ -193,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         ******************************************/
         @Override
         protected void onPreExecute() {
-            mRecycler.setVisibility(View.INVISIBLE);
+//            mRecycler.setVisibility(View.INVISIBLE);
             mLoadingIndicator.setVisibility(View.VISIBLE);
         }
 
