@@ -14,8 +14,8 @@ Simple &amp; Educational Android App for showing popular movies (Associate Andro
 ```
 
 # Screenshots
-<img src="http://i.imgur.com/CVigRD7.png" width="300">
-
+<img src="http://i.imgur.com/P3Xrk8a.png" width="300"/>
+<img src="http://i.imgur.com/JR1ngqz.png" width="300"/>
 
 # Version
 1.0.0
