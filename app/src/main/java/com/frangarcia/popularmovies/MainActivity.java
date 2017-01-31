@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         mRecycler.setLayoutManager(gridLayoutManager);
         mRecycler.setHasFixedSize(true);
-        mAdapter = new MoviesAdapter(new ArrayList<Movie>(), mRecycler, this);
+        mAdapter = new MoviesAdapter(this, new ArrayList<Movie>(), mRecycler, this);
         mRecycler.setAdapter(mAdapter);
 
         makeMoviesSearchQuery(mCurrentSortOrder);
@@ -242,7 +242,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             String moviesSearchResults = null;
 
             try {
-                moviesSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                if(NetworkUtils.isConnectedToInternet(MainActivity.this)) {
+                    moviesSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

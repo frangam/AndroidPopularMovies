@@ -48,6 +48,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      ******************************************/
     private List<Movie>     mMovies;
     private RecyclerView    mRecycler;
+    private Context         appContext;
 
     //
     // The minimum amount of items to have below your current scroll position before loading more.
@@ -88,7 +89,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     /* *****************************************
      * Constructors
      ******************************************/
-    public MoviesAdapter(List<Movie> movies, RecyclerView recyclerView, MoviePosterEventsListener listener){
+    public MoviesAdapter(Context context, List<Movie> movies, RecyclerView recyclerView, MoviePosterEventsListener listener){
+        appContext = context;
         mMovies = movies;
         mEventsListener = listener;
         mRecycler = recyclerView;
@@ -208,7 +210,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             Log.v(TAG, "Movie Poster Index: " + posterIndex);
 
             //Load movie poster
-            if(mMovies != null && mMovies.get(posterIndex) != null) {
+            if(mMovies != null && mMovies.get(posterIndex) != null && NetworkUtils.isConnectedToInternet(appContext)) {
                 Picasso.with(itemView.getContext()).load(mMovies.get(posterIndex).getPosterCompleteURL()).into(mMoviePosterView);
             }
         }
