@@ -47,7 +47,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      * Fields
      ******************************************/
     private List<Movie>     mMovies;
-    private RecyclerView    mRecycler;
     private Context         appContext;
 
     //
@@ -78,12 +77,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return mMovies;
     }
 
-    public void setmMovies(List<Movie> mMovies) {
-        mMovies = mMovies;
+    public void setmMovies(List<Movie> movies) {
+        mMovies = movies;
     }
 
     public void setLoading(boolean loading) {
-        this.loading = loading;
+        this.loading = false;
     }
 
     /* *****************************************
@@ -93,14 +92,13 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         appContext = context;
         mMovies = movies;
         mEventsListener = listener;
-        mRecycler = recyclerView;
 
         if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
             final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
 
             // implement an endless scroll
             //idea from http://stackoverflow.com/questions/30681905/adding-items-to-endless-scroll-recyclerview-with-progressbar-at-bottom
-            mRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
@@ -114,7 +112,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         if (mEventsListener != null) {
                             mEventsListener.onLoadMoreMovies();
                         }
-                        loading = true;
+                        setLoading(true);
                     }
                 }
             });
@@ -128,16 +126,15 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        boolean shouldAttachToParentImmediately = false;
-        View view = null;
+        View view;
         RecyclerView.ViewHolder viewHolder = null;
 
         if(viewType == VIEW_MOVIE_POSTERS) {
-            view = inflater.inflate(R.layout.movie_poster, parent, shouldAttachToParentImmediately);
+            view = inflater.inflate(R.layout.movie_poster, parent, false);
             viewHolder = new MoviePosterViewHolder(view);
         }
         else if(viewType == VIEW_LOADER_INDICATOR){
-            view = inflater.inflate(R.layout.progress_loader, parent, shouldAttachToParentImmediately);
+            view = inflater.inflate(R.layout.progress_loader, parent, false);
             viewHolder = new ProgressViewHolder(view);
         }
 
@@ -204,14 +201,18 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         /**
          * Load the movie poster into the ImageView control
-         * @param posterIndex
+         * @param posterIndex the movie poster index
          */
         private void bind(int posterIndex) {
             Log.v(TAG, "Movie Poster Index: " + posterIndex);
 
             //Load movie poster
             if(mMovies != null && mMovies.get(posterIndex) != null && NetworkUtils.isConnectedToInternet(appContext)) {
-                Picasso.with(itemView.getContext()).load(mMovies.get(posterIndex).getPosterCompleteURL()).into(mMoviePosterView);
+                Picasso.with(itemView.getContext())
+                        .load(mMovies.get(posterIndex).getPosterCompleteURL())
+                        .placeholder(R.drawable.default_placeholder)
+                        .error(R.drawable.error_placeholder)
+                        .into(mMoviePosterView);
             }
         }
     }

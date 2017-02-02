@@ -26,7 +26,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 
-import com.frangarcia.popularmovies.MainActivity;
 import com.frangarcia.popularmovies.MoviesSortOrder;
 import com.frangarcia.popularmovies.R;
 
@@ -157,7 +156,7 @@ public class NetworkUtils {
     /**
      * Check if the device is connected to internet
      * Source: http://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-times-out
-     * @param context
+     * @param context the app context
      * @return true if device is connected, false otherwise
      */
     public static boolean isConnectedToInternet(Context context) {

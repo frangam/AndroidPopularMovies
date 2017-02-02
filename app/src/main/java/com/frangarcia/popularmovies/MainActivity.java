@@ -29,11 +29,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.frangarcia.popularmovies.models.Movie;
+import com.frangarcia.popularmovies.utilities.LayoutUtils;
 import com.frangarcia.popularmovies.utilities.NetworkUtils;
 
 import org.json.JSONArray;
@@ -78,7 +77,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_main_loader_indicator);
 
         mRecycler = (RecyclerView) findViewById(R.id.rv_movie_posters);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+        int numColumns = LayoutUtils.calculateNoOfColumns(this);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, numColumns);
         mRecycler.setLayoutManager(gridLayoutManager);
         mRecycler.setHasFixedSize(true);
         mAdapter = new MoviesAdapter(this, new ArrayList<Movie>(), mRecycler, this);
@@ -203,8 +203,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
 
     private void showMoviesPosters(List<Movie> movies){
         if(movies != null && movies.size() > 0){
-            int totalMovies = movies.size();
-
             Log.v(TAG, "Total Movies: " + movies.size());
 
             mRecycler.setVisibility(View.VISIBLE);

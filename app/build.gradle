@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'android-apt'
 
 android {
     compileSdkVersion 25
@@ -28,12 +29,13 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.1.0'
     testCompile 'junit:junit:4.12'
 
+    //Picasso images downloand and caching
     compile 'com.squareup.picasso:picasso:2.5.2'
 
 
+    //Butter knife: views injection
+    compile 'com.jakewharton:butterknife:8.4.0'
+    apt 'com.jakewharton:butterknife-compiler:8.4.0'
 }
 
 
-repositories {
-    mavenCentral()
-}

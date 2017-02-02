@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2016 Francisco Manuel Garcia Moreno
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +17,31 @@
 package com.frangarcia.popularmovies;
 
 import android.content.Intent;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frangarcia.popularmovies.models.Movie;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MovieDetailsActivity extends AppCompatActivity {
     /* *****************************************
-    * Constants
-    ******************************************/
-    private static final String TAG                 = MoviesAdapter.class.getSimpleName();
+     * Fields
+     ******************************************/
+    @BindView(R.id.tv_movie_original_title) TextView    mOriginalTitle;
+    @BindView(R.id.iv_movie_poster_detail)  ImageView   mMoviePoster;
+    @BindView(R.id.tv_movie_release_date)   TextView    mReleaseDate;
+    @BindView(R.id.tv_movie_vote_average)   TextView    mVoteAverage;
+    @BindView(R.id.tv_movie_overview)       TextView    mOverview;
 
     /* *****************************************
-    * Fields
-    ******************************************/
-    private TextView    mOriginalTitle;
-    private ImageView   mMoviePoster;
-    private TextView    mReleaseDate;
-    private TextView    mVoteAverage;
-    private TextView    mOverview;
-
+     * Overridden Methods
+     ******************************************/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,17 +49,15 @@ public class MovieDetailsActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         // Allow Up navigation with the app icon in the action bar
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         //load selected movie info
         if(intent.hasExtra(MainActivity.MOVIE_INTENT_EXTRA)) {
-            Movie selectedMovie = (Movie) getIntent().getParcelableExtra(MainActivity.MOVIE_INTENT_EXTRA);
-
-            mOriginalTitle = (TextView) findViewById(R.id.tv_movie_original_title);
-            mMoviePoster = (ImageView) findViewById(R.id.iv_movie_poster_detail);
-            mReleaseDate = (TextView) findViewById(R.id.tv_movie_release_date);
-            mVoteAverage = (TextView) findViewById(R.id.tv_movie_vote_average);
-            mOverview = (TextView) findViewById(R.id.tv_movie_overview);
+            Movie selectedMovie = getIntent().getParcelableExtra(MainActivity.MOVIE_INTENT_EXTRA);
+            ButterKnife.bind(this); //view injection
 
             Picasso.with(getApplicationContext()).load(selectedMovie.getPosterCompleteURL()).into(mMoviePoster);
             mOriginalTitle.setText(selectedMovie.getmOriginalTitle());

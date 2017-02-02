@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2016 Francisco Manuel Garcia Moreno
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,9 @@ package com.frangarcia.popularmovies.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.frangarcia.popularmovies.utilities.ArraysUtils;
 import com.frangarcia.popularmovies.utilities.JSONUtils;
 import com.frangarcia.popularmovies.utilities.NetworkUtils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,22 +35,22 @@ public class Movie implements Parcelable{
     /* *****************************************
      * Constants for json field names
      ******************************************/
-    static final String        ID_FIELD                    = "id";
-    static final String        POSTER_PATH_FIELD           = "poster_path";
-    static final String        ADULT_FIELD                 = "adult";
-    static final String        OVERVIEW_FIELD              = "overview";
-    static final String        RELEASE_DATE_FIELD          = "release_date";
-    static final String        GENRE_IDS_FIELD             = "genre_ids";
-    static final String        ORIGINAL_TITLE_FIELD        = "original_title";
-    static final String        ORIGINAL_LANGUAGE_FIELD     = "original_language";
-    static final String        TITLE_FIELD                 = "title";
-    static final String        POPULARITY_FIELD            = "popularity";
-    static final String        VOTE_COUNT_FIELD            = "vote_count";
-    static final String        VIDEO_FIELD                 = "video";
-    static final String        VOTE_AVERAGE_FIELD          = "vote_average";
+    private static final String        ID_FIELD                    = "id";
+    private static final String        POSTER_PATH_FIELD           = "poster_path";
+    private static final String        ADULT_FIELD                 = "adult";
+    private static final String        OVERVIEW_FIELD              = "overview";
+    private static final String        RELEASE_DATE_FIELD          = "release_date";
+    private static final String        GENRE_IDS_FIELD             = "genre_ids";
+    private static final String        ORIGINAL_TITLE_FIELD        = "original_title";
+    private static final String        ORIGINAL_LANGUAGE_FIELD     = "original_language";
+    private static final String        TITLE_FIELD                 = "title";
+    private static final String        POPULARITY_FIELD            = "popularity";
+    private static final String        VOTE_COUNT_FIELD            = "vote_count";
+    private static final String        VIDEO_FIELD                 = "video";
+    private static final String        VOTE_AVERAGE_FIELD          = "vote_average";
 
     //the total amount of the fields written as String Array in destination Parcel
-    static final int           TOTAL_STRING_ARRAY_FIELDS   = 13;
+    private static final int           TOTAL_STRING_ARRAY_FIELDS   = 13;
 
     /* *****************************************
      * Fields
@@ -144,7 +142,7 @@ public class Movie implements Parcelable{
      * @throws JSONException
      */
     public  Movie(JSONObject json) throws JSONException {
-        this(new Integer(json.getInt(ID_FIELD)), json.getString(POSTER_PATH_FIELD)
+        this(json.getInt(ID_FIELD), json.getString(POSTER_PATH_FIELD)
                 , json.getBoolean(ADULT_FIELD), json.getString(OVERVIEW_FIELD)
                 , json.getString(RELEASE_DATE_FIELD), JSONUtils.getIntegerArray(json.getJSONArray(GENRE_IDS_FIELD)), json.getString(ORIGINAL_TITLE_FIELD)
                 , json.getString(ORIGINAL_LANGUAGE_FIELD), json.getString(TITLE_FIELD)

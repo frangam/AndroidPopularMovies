@@ -38,7 +38,7 @@ public class JSONUtils {
 
         try {
             for(int i=0; i<jsonArray.length(); i++){
-                res[i] = new Integer(jsonArray.getInt(i));
+                res[i] = jsonArray.getInt(i);
             }
         } catch (JSONException e) {
             e.printStackTrace();
