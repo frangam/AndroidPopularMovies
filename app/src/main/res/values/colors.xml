@@ -24,4 +24,6 @@
     <color name="colorText">#b6b6b6</color>
     <color name="colorDefaultText">#000000</color>
     <color name="colorBlankText">#ffffff</color>
+
+    <color name="error_network">#f00000</color>
 </resources>

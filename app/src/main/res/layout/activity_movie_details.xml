@@ -37,9 +37,9 @@
                 android:id="@+id/tv_movie_original_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="42dp"
-                android:paddingTop="42dp"
-                android:paddingBottom="42dp"
+                android:textSize="@dimen/movie_title_size"
+                android:paddingTop="@dimen/movie_title_padding"
+                android:paddingBottom="@dimen/movie_title_padding"
                 android:textColor="@color/colorBlankText"
                 tools:text="Original Title"/>
 
@@ -62,22 +62,22 @@
 
                     <ImageView
                         android:id="@+id/iv_movie_poster_detail"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginLeft="32dp"
-                        android:layout_width="150dp"
-                        android:layout_height="220dp"/>
+                        android:layout_marginTop="@dimen/default_padding_margin_16"
+                        android:layout_marginLeft="@dimen/default_padding_margin_32"
+                        android:layout_width="@dimen/movie_poster_width"
+                        android:layout_height="@dimen/movie_poster_height"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="@dimen/default_padding_margin_16">
 
                         <TextView
                             android:id="@+id/tv_movie_release_date"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="34sp"
+                            android:textSize="@dimen/movie_release_date_size"
                             android:fontFamily="monospace"
                             android:textStyle="bold"
                             tools:text="2017"/>
@@ -86,7 +86,7 @@
                             android:id="@+id/tv_movie_vote_average"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="20dp"
+                            android:textSize="@dimen/movie_vote_average_size"
                             android:textColor="@color/colorDefaultText"
                             tools:text="8.1/10"/>
                     </LinearLayout>
@@ -96,14 +96,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/default_padding_margin_16">
 
                     <TextView
                         android:id="@+id/tv_movie_overview"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="22dp"
-                        android:padding="8dp"
+                        android:textSize="@dimen/movie_overview_size"
+                        android:padding="@dimen/default_padding_margin_8"
                         tools:text="The quiet life of a terrier named Max is upended when his owner takes in Duke, a stray whom Max instantly dislikes."/>
                 </LinearLayout>
 
