@@ -59,7 +59,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
             Movie selectedMovie = getIntent().getParcelableExtra(MainActivity.MOVIE_INTENT_EXTRA);
             ButterKnife.bind(this); //view injection
 
-            Picasso.with(getApplicationContext()).load(selectedMovie.getPosterCompleteURL()).into(mMoviePoster);
+            Picasso.with(getApplicationContext())
+                    .load(selectedMovie.getPosterCompleteURL())
+                    .placeholder(R.drawable.default_placeholder)
+                    .error(R.drawable.error_placeholder)
+                    .into(mMoviePoster);
+
             mOriginalTitle.setText(selectedMovie.getmOriginalTitle());
             mReleaseDate.setText(selectedMovie.getmReleaseDate().substring(0,4));
             mVoteAverage.setText(selectedMovie.getmVoteAverage().toString()+"/10");
