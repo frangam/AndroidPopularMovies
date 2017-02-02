@@ -32,6 +32,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.frangarcia.popularmovies.models.Movie;
+import com.frangarcia.popularmovies.utilities.AsyncTaskCompleteListener;
 import com.frangarcia.popularmovies.utilities.LayoutUtils;
 import com.frangarcia.popularmovies.utilities.NetworkUtils;
 
@@ -147,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
      private void makeMoviesSearchQuery(MoviesSortOrder order) {
          mCurrentSortOrder = order;
          URL moviesSearchUrl = NetworkUtils.buildUrl(this, mCurrentMoviesPage, mCurrentSortOrder);
-         new MoviesQueryTask().execute(moviesSearchUrl);
+         new MoviesQueryTask(this, new FetchMoviesListener()).execute(moviesSearchUrl);
      }
 
     /**
@@ -217,41 +218,23 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
 
 
     /* *****************************************
-     * Inner AcyncTask class for getting
-     * movies JSON file
+     * Inner AcyncTask class listener for getting
+     * movies JSON file as a String
      ******************************************/
-    public class MoviesQueryTask extends AsyncTask<URL, Void, String> {
-        /* *****************************************
-        * Overridden Methods
-        ******************************************/
+    public class FetchMoviesListener implements AsyncTaskCompleteListener<String> {
+
         @Override
-        protected void onPreExecute() {
-//            mRecycler.setVisibility(View.INVISIBLE);
+        public void OnTaskPreRun() {
             mLoadingIndicator.setVisibility(View.VISIBLE);
         }
 
         @Override
-        protected String doInBackground(URL... urls) {
-            URL searchUrl = urls[0];
-            String moviesSearchResults = null;
-
-            try {
-                if(NetworkUtils.isConnectedToInternet(MainActivity.this)) {
-                    moviesSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return moviesSearchResults;
-        }
-
-        @Override
-        protected void onPostExecute(String moviesSearchResults) {
+        public void onTaskComplete(String result)
+        {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
 
-            if (moviesSearchResults != null && !moviesSearchResults.equals("")) {
-                loadMovies(moviesSearchResults);
+            if (result != null && !result.equals("")) {
+                loadMovies(result);
             }
             else {
                 showErrorMessage();
