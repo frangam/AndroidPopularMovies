@@ -1,5 +1,5 @@
 # Android Popular Movies
-Simple &amp; Educational Android App for showing popular movies (Associate Android Developer Fast Track at Udacity: https://www.udacity.com/course/associate-android-developer-fast-track--nd818)
+Simple &amp; Educational Android App for showing popular movies.
 
 # themoviedb.org API
 - This project use the themoviedb.org API and it is necessary to have an account and request for an API key. 
